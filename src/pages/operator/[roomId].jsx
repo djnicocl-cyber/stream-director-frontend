@@ -33,10 +33,10 @@ return(<div style={{padding:'1rem'}}>
 <button className="btn" onClick={()=>window.open('/join/'+roomId,'_blank')} style={{width:'auto'}}>QR asistentes</button>
 <button className="btn" onClick={()=>window.open('/screen/'+roomId,'_blank')} style={{width:'auto',background:'#00b894'}}>Abrir pantalla</button>
 </div></div>
-{streamers.length===0?(<div style={{textAlign:'center',marginTop:'4rem',color:'#aaa'}}><div style={{fontSize:'3rem'}}>Satelite</div><p>Esperando asistentes...</p></div>):
+{streamers.length===0?(<div style={{textAlign:'center',marginTop:'4rem',color:'#aaa'}}><div style={{fontSize:'3rem'}}>Satelite</div><p>Esperando asistentes...</p>
 (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'1rem'}}>
 {streamers.map(p=>(<div key={p.identity} onClick={()=>sel(p.identity)} style={{border:selected===p.identity?'2px solid #6c5ce7':'2px solid #333',borderRadius:'8px',padding:'1rem',cursor:'pointer',background:selected===p.identity?'#1a1a2e':'#111'}}>
 <p style={{fontWeight:'bold'}}>{p.name||p.identity}</p>
 <p style={{color:selected===p.identity?'#a29bfe':'#aaa',fontSize:'.85rem'}}>{selected===p.identity?'Proyectando':'Tap para proyectar'}</p>
 </div>))}</div>)}
-</div>);}🟢🔴📡✅
+</div>);}
