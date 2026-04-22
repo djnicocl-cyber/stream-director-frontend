@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pantalla — Stream Director</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#000}
+    #screenView{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;}
+    #screenVideo{width:100vw;height:100vh;object-fit:contain;object-position:center center;display:block;}
+    #waitingScreen{position:fixed;inset:0;background:var(--bg-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;z-index:10;}
+    .broadcast-title{font-size:72px;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,#e8002d 0%,#ff6b6b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .waiting-dots{display:flex;gap:12px;}
+    .waiting-dots span{width:12px;height:12px;border-radius:50%;background:var(--accent-red);animation:dot-bounce 1.4s ease-in-out infinite;}
+    .waiting-dots span:nth-child(2){animation-delay:.2s;}.waiting-dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes dot-bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1.2);opacity:1}}
+    #screenOverlay{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:40px 32px 24px;display:flex;align-items:flex-end;justify-content:space-between;z-index:5;pointer-events:none;}
+    .live-pill{background:var(--accent-red);color:white;font-size:12px;font-weight:900;letter-spacing:4px;padding:7px 16px;border-radius:5px;text-transform:uppercase;animation:pulse-badge 1.5s ease-in-out infinite;}
+    @keyframes pulse-badge{0%,100%{box-shadow:0 0 0 0 rgba(232,0,45,.5)}50%{box-shadow:0 0 0 10px rgba(232,0,45,0)}}
+    .live-name{font-size:28px;font-weight:800;color:white;text-shadow:0 2px 12px rgba(0,0,0,.9);letter-spacing:1px;}
+    .live-time{font-size:13px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:1px;}
+    #setupPanel{position:fixed;inset:0;background:var(--bg-dark);display:flex;align-items:center;justify-content:center;z-index:20;}
+    .setup-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:40px;width:100%;max-width:420px;}
+  </style>
+</head>
+<body>
+<div id="setupPanel">
+  <div class="setup-card">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:48px;margin-bottom:12px;">📺</div>
+      <h2 style="font-size:22px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">Vista Pantalla</h2>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Proyección del streamer seleccionado</p>
+    </div>
+    <div class="form-group"><label>ID de la Sala</label><input type="text" id="roomId" placeholder="Ej: sala-principal"/></div>
+    <div id="setupAlert" class="hidden"></div>
+    <button class="btn btn-success w-full btn-lg" onclick="startScreen()">📺 Iniciar pantalla</button>
+    <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:16px;">Se recomienda usar en pantalla completa (F11)</p>
+  </div>
+</div>
+<div id="waitingScreen" class="hidden">
+  <div class="broadcast-title">STREAM DIRECTOR</div>
+  <div style="text-align:center;">
+    <p style="font-size:16px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px;">EN ESPERA DE SEÑAL</p>
+    <div class="waiting-dots"><span></span><span></span><span></span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;opacity:.5;">
+    <span style="width:8px;height:8px;border-radius:50%;background:var(--accent-amber);animation:blink 1.5s step-start infinite;display:inline-block;"></span>
+    <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);">Sala: <span id="waitRoomId"></span></span>
+  </div>
+</div>
+<div id="screenView" class="hidden">
+  <video id="screenVideo" autoplay playsinline></video>
+  <div id="screenOverlay">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="live-pill">● EN VIVO</div>
+      <div class="live-name" id="liveNameText"></div>
+    </div>
+    <div class="live-time" id="liveTimer">00:00</div>
+  </div>
+</div>
+<script>
+const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
+const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
+let room=null,currentRoomId='',currentSelected=null,pollInterval=null,liveStartTime=null,timerInterval=null;
+window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
+async function startScreen(){
+  const roomId=document.getElementById('roomId').value.trim();
+  const a=document.getElementById('setupAlert');a.className='hidden';
+  if(!roomId){a.className='alert alert-error';a.textContent='Ingresa el ID de la sala';return;}
+  try{
+    const r=await fetch(BACKEND+'/api/token/screen',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roomId,identity:'pantalla-'+Date.now()})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');
+    currentRoomId=roomId;localStorage.setItem('sd_room_id',roomId);
+    room=new LivekitClient.Room();setupRoomEvents();
+    await room.connect(LIVEKIT_URL,d.token);
+    document.getElementById('setupPanel').classList.add('hidden');
+    document.getElementById('waitingScreen').classList.remove('hidden');
+    document.getElementById('waitRoomId').textContent=roomId;
+    startPolling();
+  }catch(e){a.className='alert alert-error';a.textContent='Error: '+e.message;}
+}
+function setupRoomEvents(){
+  room.on(LivekitClient.RoomEvent.TrackSubscribed,(track,pub,participant)=>{if(track.kind==='video'&&participant.identity===currentSelected)attachVideo(track,participant.identity);});
+  room.on(LivekitClient.RoomEvent.TrackUnsubscribed,(track,pub,participant)=>{if(participant.identity===currentSelected)showWaiting();});
+  room.on(LivekitClient.RoomEvent.ParticipantDisconnected,p=>{if(p.identity===currentSelected){showWaiting();currentSelected=null;}});
+}
+function startPolling(){
+  pollInterval=setInterval(async()=>{
+    try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();const ns=d.selected;
+    if(ns!==currentSelected){currentSelected=ns;
+    if(!currentSelected){showWaiting();return;}
+    const p=room.remoteParticipants.get(currentSelected);
+    if(p){let fv=false;p.videoTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){attachVideo(pub.track,p.identity);fv=true;}});if(!fv)showWaiting();}else showWaiting();
+    document.getElementById('liveNameText').textContent=currentSelected||'';}
+    }catch(e){}},1500);
+}
+function attachVideo(track,identity){
+  const v=document.getElementById('screenVideo');track.attach(v);
+  v.onloadedmetadata=()=>{
+    // Always force horizontal display
+    v.style.width='100vw';v.style.height='100vh';
+    v.style.objectFit='contain';
+  };
+  document.getElementById('waitingScreen').classList.add('hidden');
+  document.getElementById('screenView').classList.remove('hidden');
+  document.getElementById('liveNameText').textContent=identity;
+  startTimer();
+}
+function showWaiting(){document.getElementById('screenView').classList.add('hidden');document.getElementById('waitingScreen').classList.remove('hidden');stopTimer();const v=document.getElementById('screenVideo');v.srcObject=null;}
+function startTimer(){stopTimer();liveStartTime=Date.now();timerInterval=setInterval(()=>{const e=Math.floor((Date.now()-liveStartTime)/1000);const m=String(Math.floor(e/60)).padStart(2,'0');const s=String(e%60).padStart(2,'0');document.getElementById('liveTimer').textContent=m+':'+s;},1000);}
+function stopTimer(){if(timerInterval)clearInterval(timerInterval);document.getElementById('liveTimer').textContent='00:00';}
+window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);if(timerInterval)clearInterval(timerInterval);});
+</script>
+</body>
+</html>
