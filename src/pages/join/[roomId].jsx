@@ -67,27 +67,27 @@ export default function JoinPage() {
           {status === 'idle' && (
                   <div style={{ background: '#111', border: '1px solid #333', borderRadius: '12px', padding: '40px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
                               <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Unirse como Streamer</h1>h1>
-                              <p style={{ color: '#888', marginBottom: '24px' }}>Sala: {roomId}</p>p>
+                              <p style={{ color: '#888', marginBottom: '24px' }}>Sala: {roomId}</p>
                               <input type="text" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleJoin()} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #333', background: '#0a0a0a', color: 'white', fontSize: '16px', marginBottom: '16px', boxSizing: 'border-box' }} />
-                              <button onClick={handleJoin} disabled={!name.trim()} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', background: name.trim() ? '#2563eb' : '#333', color: 'white', fontSize: '16px', cursor: name.trim() ? 'pointer' : 'not-allowed' }}>Unirse</button>button>
-                  </div>div>
+                              <button onClick={handleJoin} disabled={!name.trim()} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', background: name.trim() ? '#2563eb' : '#333', color: 'white', fontSize: '16px', cursor: name.trim() ? 'pointer' : 'not-allowed' }}>Unirse</button>
+                  </div>
                 )}
           {status !== 'idle' && (
                   <div style={{ width: '100%', maxWidth: '600px', textAlign: 'center' }}>
                               <div style={{ marginBottom: '16px', padding: '12px', borderRadius: '8px', background: selected ? '#064e3b' : '#1c1c1e', border: '1px solid ' + (selected ? '#10b981' : '#333'), fontSize: '18px', fontWeight: 'bold' }}>
                                 {selected ? 'PROYECTANDO EN PANTALLA' : 'En espera'}
-                              </div>div>
+                              </div>
                               <div style={{ position: 'relative', marginBottom: '16px' }}>
                                             <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', borderRadius: '12px', background: '#111', border: '2px solid ' + (selected ? '#10b981' : '#333') }} />
-                                {selected && <div style={{ position: 'absolute', top: '12px', left: '12px', background: '#10b981', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>EN VIVO</div>div>}
-                              </div>div>
-                              <p style={{ color: '#888', fontSize: '14px' }}>{msg}</p>p>
-                              <p style={{ color: '#666', fontSize: '12px' }}>Sala: {roomId} | Nombre: {name}</p>p>
+                                {selected && <div style={{ position: 'absolute', top: '12px', left: '12px', background: '#10b981', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>EN VIVO</div>}
+                              </div>
+                              <p style={{ color: '#888', fontSize: '14px' }}>{msg}</p>
+                              <p style={{ color: '#666', fontSize: '12px' }}>Sala: {roomId} | Nombre: {name}</p>
                     {(status === 'connected' || status === 'disconnected') && (
-                                <button onClick={() => { if (roomRef.current) roomRef.current.disconnect(); setStatus('idle'); setMsg(''); setSelected(false); }} style={{ marginTop: '16px', padding: '8px 24px', borderRadius: '8px', border: '1px solid #555', background: 'transparent', color: '#888', cursor: 'pointer' }}>Salir</button>button>
+                                <button onClick={() => { if (roomRef.current) roomRef.current.disconnect(); setStatus('idle'); setMsg(''); setSelected(false); }} style={{ marginTop: '16px', padding: '8px 24px', borderRadius: '8px', border: '1px solid #555', background: 'transparent', color: '#888', cursor: 'pointer' }}>Salir</button>
                               )}
-                  </div>div>
+                  </div>
                 )}
-        </div>div>
+        </div>
       );
 }
