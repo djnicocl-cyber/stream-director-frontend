@@ -66,7 +66,7 @@ export default function JoinPage() {
         <div style={{ minHeight: '100vh', background: '#0a0a0a', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
           {status === 'idle' && (
                   <div style={{ background: '#111', border: '1px solid #333', borderRadius: '12px', padding: '40px', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-                              <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Unirse como Streamer</h1>h1>
+                              <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Unirse como Streamer</h1>
                               <p style={{ color: '#888', marginBottom: '24px' }}>Sala: {roomId}</p>
                               <input type="text" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleJoin()} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #333', background: '#0a0a0a', color: 'white', fontSize: '16px', marginBottom: '16px', boxSizing: 'border-box' }} />
                               <button onClick={handleJoin} disabled={!name.trim()} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', background: name.trim() ? '#2563eb' : '#333', color: 'white', fontSize: '16px', cursor: name.trim() ? 'pointer' : 'not-allowed' }}>Unirse</button>
