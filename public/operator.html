@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Operador — Stream Director</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🎛️</div>
+    <h1>Stream <span>Director</span> — <span style="color:#2979ff">Operador</span></h1>
+  </div>
+  <div class="flex items-center gap-16">
+    <div id="onAirBadge" class="on-air-badge hidden"><span class="dot"></span> ON AIR</div>
+    <div class="flex items-center gap-8">
+      <span class="status-dot" id="connDot"></span>
+      <span class="text-xs text-muted" id="connLabel">Desconectado</span>
+    </div>
+    <div class="signal-bars" id="signalBars" style="opacity:0.3"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+</header>
+<div class="container">
+  <div id="joinPanel" class="card" style="max-width:480px;margin:40px auto;">
+    <div class="card-header">📡 Conectar como Operador</div>
+    <div class="form-group"><label>ID de la Sala</label><input type="text" id="roomId" placeholder="Ej: sala-principal"/></div>
+    <div class="form-group"><label>Tu nombre</label><input type="text" id="identity" placeholder="Ej: operador-1" value="operador"/></div>
+    <div id="joinAlert" class="hidden"></div>
+    <button class="btn btn-primary w-full btn-lg" onclick="joinRoom()">🔴 Conectar al Control</button>
+  </div>
+  <div id="controlPanel" class="hidden">
+    <div class="flex items-center justify-between" style="margin-bottom:20px;">
+      <div>
+        <h2 style="font-size:20px;font-weight:700;letter-spacing:1px;">SALA: <span id="roomLabel" style="color:var(--accent-red)"></span></h2>
+        <p class="text-xs text-muted mt-8">Selecciona quién sale al aire</p>
+      </div>
+      <div class="flex gap-12 items-center">
+        <div id="selectedInfo" class="hidden">
+          <div class="flex items-center gap-8">
+            <span class="status-dot live"></span>
+            <span class="text-sm">En aire: <strong id="selectedName" style="color:var(--accent-red)"></strong></span>
+          </div>
+        </div>
+        <button class="btn btn-ghost" onclick="goHome()">← Salir</button>
+      </div>
+    </div>
+    <div id="noStreamers" class="card text-center" style="padding:60px;">
+      <div style="font-size:48px;margin-bottom:16px;">📭</div>
+      <p style="font-size:16px;font-weight:600;margin-bottom:8px;">Sin streamers conectados</p>
+      <p class="text-muted text-sm">Los streamers aparecerán aquí cuando se conecten</p>
+      <div class="flex items-center gap-8" style="justify-content:center;margin-top:24px;">
+        <span class="status-dot waiting"></span>
+        <span class="text-xs text-muted">Esperando participantes...</span>
+      </div>
+    </div>
+    <div id="streamersGrid" class="streamer-grid hidden"></div>
+  </div>
+</div>
+<script>
+const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
+const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
+let room=null,currentRoomId='',selectedParticipant=null,pollInterval=null;
+window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
+async function joinRoom(){
+  const roomId=document.getElementById('roomId').value.trim();
+  const identity=document.getElementById('identity').value.trim()||'operador';
+  const a=document.getElementById('joinAlert');a.className='hidden';
+  if(!roomId){a.className='alert alert-error';a.textContent='Ingresa el ID de la sala';return;}
+  try{
+    const r=await fetch(BACKEND+'/api/token/operator',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roomId,identity})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');
+    currentRoomId=roomId;localStorage.setItem('sd_room_id',roomId);
+    room=new LivekitClient.Room();setupRoomEvents();
+    await room.connect(LIVEKIT_URL,d.token);setConnected(true);
+    document.getElementById('joinPanel').classList.add('hidden');
+    document.getElementById('controlPanel').classList.remove('hidden');
+    document.getElementById('roomLabel').textContent=roomId;
+    startPolling();
+  }catch(e){a.className='alert alert-error';a.textContent='Error: '+e.message;}
+}
+function setupRoomEvents(){
+  room.on(LivekitClient.RoomEvent.ParticipantConnected,()=>updateStreamers());
+  room.on(LivekitClient.RoomEvent.ParticipantDisconnected,()=>updateStreamers());
+  room.on(LivekitClient.RoomEvent.TrackSubscribed,()=>updateStreamers());
+  room.on(LivekitClient.RoomEvent.TrackUnsubscribed,()=>updateStreamers());
+  room.on(LivekitClient.RoomEvent.Disconnected,()=>setConnected(false));
+}
+function updateStreamers(){
+  const grid=document.getElementById('streamersGrid');
+  const noS=document.getElementById('noStreamers');
+  const participants=Array.from(room.remoteParticipants.values()).filter(p=>!p.identity.startsWith('operador')&&!p.identity.startsWith('pantalla'));
+  if(!participants.length){grid.classList.add('hidden');noS.classList.remove('hidden');return;}
+  noS.classList.add('hidden');grid.classList.remove('hidden');grid.innerHTML='';
+  participants.forEach(p=>grid.appendChild(createCard(p)));
+}
+function createCard(p){
+  const sel=selectedParticipant===p.identity;
+  const card=document.createElement('div');card.className='streamer-card'+(sel?' selected':'');
+  if(sel){const b=document.createElement('div');b.className='selected-badge';b.textContent='● EN AIRE';card.appendChild(b);}
+  const thumb=document.createElement('div');thumb.className='thumb';
+  let hasV=false;
+  p.videoTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){const v=pub.track.attach();v.muted=true;thumb.appendChild(v);hasV=true;}});
+  if(!hasV){const nv=document.createElement('div');nv.className='no-video';nv.innerHTML='🎤';thumb.appendChild(nv);}
+  card.appendChild(thumb);
+  const info=document.createElement('div');info.className='info';
+  const name=document.createElement('div');name.className='name';name.textContent=p.identity;info.appendChild(name);
+  if(sel){const lt=document.createElement('span');lt.style.cssText='font-size:10px;font-weight:800;color:var(--accent-red);letter-spacing:2px;';lt.textContent='● LIVE';info.appendChild(lt);}
+  else{const btn=document.createElement('button');btn.className='btn btn-primary select-btn';btn.textContent='AL AIRE';btn.onclick=()=>selectStreamer(p.identity);info.appendChild(btn);}
+  card.appendChild(info);return card;
+}
+async function selectStreamer(id){
+  try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/select',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({participantId:id})});
+  if(!r.ok)throw new Error();selectedParticipant=id;updateStreamers();updateSelectedInfo();document.getElementById('onAirBadge').classList.remove('hidden');}catch(e){}
+}
+function updateSelectedInfo(){const el=document.getElementById('selectedInfo');if(selectedParticipant){document.getElementById('selectedName').textContent=selectedParticipant;el.classList.remove('hidden');}else el.classList.add('hidden');}
+function startPolling(){
+  pollInterval=setInterval(async()=>{
+    try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();
+    const prev=selectedParticipant;selectedParticipant=d.selected;
+    if(prev!==selectedParticipant){updateStreamers();updateSelectedInfo();
+    if(selectedParticipant)document.getElementById('onAirBadge').classList.remove('hidden');
+    else document.getElementById('onAirBadge').classList.add('hidden');}
+    }catch(e){}},2000);
+}
+function setConnected(v){const dot=document.getElementById('connDot');const label=document.getElementById('connLabel');const bars=document.getElementById('signalBars');if(v){dot.className='status-dot online';label.textContent='Conectado';bars.style.opacity='1';}else{dot.className='status-dot';label.textContent='Desconectado';bars.style.opacity='0.3';}}
+function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);window.location.href='index.html';}
+window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
+</script>
+</body>
+</html>
