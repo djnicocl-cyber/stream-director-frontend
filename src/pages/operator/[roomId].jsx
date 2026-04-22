@@ -66,23 +66,23 @@ export default function OperatorPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                           <div>
                                     <h1 style={{ fontSize: '1.5rem' }}>Panel del Operador</h1>h1>
-                                    <p style={{ color: '#aaa' }}>Sala: {roomId} - {status}</p>p>
-                          </div>div>
+                                    <p style={{ color: '#aaa' }}>Sala: {roomId} - {status}</p>
+                          </div>
                         <div style={{ display: 'flex', gap: '1rem' }}>
                                   <button className="btn" onClick={() => window.open('/join/' + roomId, '_blank')} style={{ width: 'auto' }}>
                                               QR asistentes
-                                  </button>button>
+                                  </button>
                                   <button className="btn" onClick={() => window.open('/screen/' + roomId, '_blank')} style={{ width: 'auto', background: '#00b894' }}>
                                               Abrir pantalla
-                                  </button>button>
-                        </div>div>
-                </div>div>
+                                  </button>
+                        </div>
+                </div>
         
           {streamers.length === 0 ? (
                   <div style={{ textAlign: 'center', marginTop: '4rem', color: '#aaa' }}>
-                            <div style={{ fontSize: '3rem' }}>📡</div>div>
-                            <p>Esperando asistentes...</p>p>
-                  </div>div>
+                            <div style={{ fontSize: '3rem' }}>📡</div>
+                            <p>Esperando asistentes...</p>
+                  </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
                     {streamers.map(p => (
@@ -97,14 +97,14 @@ export default function OperatorPage() {
                                                                   background: selected === p.identity ? '#1a1a2e' : '#111',
                                                 }}
                                               >
-                                              <p style={{ fontWeight: 'bold' }}>{p.name || p.identity}</p>p>
+                                              <p style={{ fontWeight: 'bold' }}>{p.name || p.identity}</p>
                                               <p style={{ color: selected === p.identity ? '#a29bfe' : '#aaa', fontSize: '.85rem' }}>
                                                 {selected === p.identity ? 'Proyectando' : 'Tap para proyectar'}
-                                              </p>p>
-                                </div>div>
+                                              </p>
+                                </div>
                               ))}
-                  </div>div>
+                  </div>
               )}
-        </div>div>
+        </div>
       );
-}</div>
+}
