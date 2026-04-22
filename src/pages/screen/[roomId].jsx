@@ -8,7 +8,7 @@ const LK_URL = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'wss://stream-director-13g
 export default function ScreenPage() {
       const router = useRouter();
       const { roomId } = router.query;
-      const [status, setStatus] = useState('connecting');
+      const [status, setStatus] = useState('connecing');
       const [selected, setSelected] = useState(null);
       const roomRef = useRef(null);
       const videoRef = useRef(null);
@@ -140,9 +140,9 @@ export default function ScreenPage() {
                                                             textAlign: 'center',
                                             }}
                                           >
-                                        <p>{status === 'connecting' ? 'Conectando...' : status}</p>p>
-                                        <p style={{ color: '#666', fontSize: '14px' }}>Sala: {roomId}</p>p>
-                              </div>div>
+                                        <p>{status === 'connecting' ? 'Conectando...' : status}</p>
+                                        <p style={{ color: '#666', fontSize: '14px' }}>Sala: {roomId}</p>
+                              </div>
                 )}
           
               {status === 'connected' && !selected && (
@@ -157,8 +157,8 @@ export default function ScreenPage() {
                                                             textAlign: 'center',
                                             }}
                                           >
-                                        <p>Esperando seleccion...</p>p>
-                              </div>div>
+                                        <p>Esperando seleccion...</p>
+                              </div>
                 )}
           
               {selected && (
@@ -175,8 +175,8 @@ export default function ScreenPage() {
                                             }}
                                           >
                                   {selected}
-                              </div>div>
+                              </div>
                 )}
-          </div>div>
+          </div>
         );
-}</div>
+}
