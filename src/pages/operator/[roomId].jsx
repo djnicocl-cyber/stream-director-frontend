@@ -65,7 +65,7 @@ export default function OperatorPage() {
         <div style={{ padding: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                           <div>
-                                    <h1 style={{ fontSize: '1.5rem' }}>Panel del Operador</h1>h1>
+                                    <h1 style={{ fontSize: '1.5rem' }}>Panel del Operador</h1>
                                     <p style={{ color: '#aaa' }}>Sala: {roomId} - {status}</p>
                           </div>
                         <div style={{ display: 'flex', gap: '1rem' }}>
