@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Streamer — Stream Director</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+  <style>
+    #localVideo{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);}
+    .preview-wrap{position:relative;width:100%;max-width:640px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;border:2px solid var(--border);}
+    .preview-wrap.on-air-border{border-color:var(--accent-red);box-shadow:0 0 0 4px rgba(232,0,45,.3);}
+    .preview-overlay{position:absolute;bottom:12px;left:12px;right:12px;display:flex;align-items:flex-end;justify-content:space-between;}
+    .video-live-badge{position:absolute;top:10px;left:10px;background:var(--accent-red);color:white;font-size:10px;font-weight:800;letter-spacing:3px;padding:4px 10px;border-radius:4px;text-transform:uppercase;animation:pulse-badge 1.5s ease-in-out infinite;}
+    @keyframes pulse-badge{0%,100%{box-shadow:0 0 0 0 rgba(232,0,45,.5)}50%{box-shadow:0 0 0 8px rgba(232,0,45,0)}}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo"><div class="logo-icon">🎤</div><h1>Stream <span>Director</span> — <span style="color:var(--accent-red)">Streamer</span></h1></div>
+  <div class="flex items-center gap-16">
+    <div id="onAirBadge" class="on-air-badge hidden"><span class="dot"></span> ON AIR</div>
+    <div class="flex items-center gap-8"><span class="status-dot" id="connDot"></span><span class="text-xs text-muted" id="connLabel">Desconectado</span></div>
+  </div>
+</header>
+<div class="container">
+  <div id="joinPanel" style="max-width:480px;margin:40px auto;">
+    <div class="card">
+      <div class="card-header">🎤 Unirse como Streamer</div>
+      <div class="form-group"><label>ID de la Sala</label><input type="text" id="roomId" placeholder="Ej: sala-principal"/></div>
+      <div class="form-group"><label>Tu nombre artístico</label><input type="text" id="identity" placeholder="Ej: DJ-MiNombre"/></div>
+      <div id="joinAlert" class="hidden"></div>
+      <button class="btn btn-primary w-full btn-lg" onclick="joinRoom()">🎬 Entrar a la sala</button>
+      <p class="text-xs text-muted text-center mt-16">Activa tu cámara y espera a que el operador te seleccione</p>
+    </div>
+  </div>
+  <div id="livePanel" style="display:none;flex-direction:column;align-items:center;gap:24px;padding:24px 0;">
+    <div class="preview-wrap" id="previewWrap">
+      <video id="localVideo" autoplay muted playsinline></video>
+      <div id="liveLabel" class="video-live-badge hidden">● EN VIVO</div>
+      <div class="preview-overlay">
+        <div></div>
+        <div id="micStatus" style="background:rgba(0,0,0,.6);padding:4px 10px;border-radius:4px;font-size:11px;color:white;font-weight:600;">🎙️ MIC ON</div>
+      </div>
+    </div>
+    <div id="standbyBox" class="card" style="width:100%;max-width:640px;">
+      <div class="standby-screen">
+        <div class="standby-icon">📡</div>
+        <div class="standby-title">PRONTO AL AIRE</div>
+        <div class="standby-sub">Estás conectado y listo. El operador te seleccionará cuando sea tu turno de salir al aire.</div>
+        <div class="flex items-center gap-12 mt-16"><span class="status-dot waiting"></span><span class="ticker-text">En espera del operador...</span></div>
+        <div class="flex items-center gap-8 mt-16" style="opacity:.5;">
+          <span class="text-xs text-muted">Sala:</span><span class="text-xs" style="font-weight:700;" id="standbyRoomId"></span>
+          <span class="text-xs text-muted">·</span>
+          <span class="text-xs text-muted">Nombre:</span><span class="text-xs" style="font-weight:700;" id="standbyIdentity"></span>
+        </div>
+      </div>
+    </div>
+    <div id="onAirBox" class="card hidden" style="width:100%;max-width:640px;border-color:var(--accent-red);box-shadow:0 0 30px rgba(232,0,45,.2);">
+      <div class="standby-screen" style="gap:16px;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--accent-red);display:flex;align-items:center;justify-content:center;font-size:36px;animation:pulse-badge 1.5s ease-in-out infinite;">📡</div>
+        <div style="font-size:28px;font-weight:900;letter-spacing:6px;color:var(--accent-red);">● EN VIVO</div>
+        <div class="standby-sub">¡Estás al aire! El operador te está proyectando en pantalla.</div>
+        <div class="signal-bars" style="margin-top:8px;"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="flex gap-12">
+      <button class="btn btn-ghost" id="btnMic" onclick="toggleMic()">🎙️ Mutear</button>
+      <button class="btn btn-ghost" id="btnCam" onclick="toggleCam()">📷 Apagar cámara</button>
+      <button class="btn btn-outline" onclick="goHome()">← Salir</button>
+    </div>
+  </div>
+</div>
+<script>
+const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
+const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
+let room=null,currentRoomId='',currentIdentity='',pollInterval=null,micEnabled=true,camEnabled=true,isOnAir=false;
+window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
+async function joinRoom(){
+  const roomId=document.getElementById('roomId').value.trim();
+  const identity=document.getElementById('identity').value.trim();
+  const a=document.getElementById('joinAlert');a.className='hidden';
+  if(!roomId){a.className='alert alert-error';a.textContent='Ingresa el ID de la sala';return;}
+  if(!identity){a.className='alert alert-error';a.textContent='Ingresa tu nombre artístico';return;}
+  try{
+    const r=await fetch(BACKEND+'/api/token/streamer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roomId,participantName:identity})});
+    const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');
+    currentRoomId=roomId;currentIdentity=identity;localStorage.setItem('sd_room_id',roomId);
+    const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    document.getElementById('localVideo').srcObject=stream;
+    room=new LivekitClient.Room();
+    room.on(LivekitClient.RoomEvent.Disconnected,()=>setConnected(false));
+    await room.connect(LIVEKIT_URL,d.token);
+    await room.localParticipant.enableCameraAndMicrophone();
+    setConnected(true);
+    document.getElementById('joinPanel').classList.add('hidden');
+    const lp=document.getElementById('livePanel');lp.style.display='flex';
+    document.getElementById('standbyRoomId').textContent=roomId;
+    document.getElementById('standbyIdentity').textContent=identity;
+    startPolling();
+  }catch(e){a.className='alert alert-error';a.textContent='Error: '+(e.message||'No se pudo conectar');}
+}
+function startPolling(){pollInterval=setInterval(async()=>{try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();const nowOn=d.selected===currentIdentity;if(nowOn!==isOnAir){isOnAir=nowOn;updateAir();}}catch(e){}},1500);}
+function updateAir(){
+  const sb=document.getElementById('standbyBox');const ob=document.getElementById('onAirBox');
+  const badge=document.getElementById('onAirBadge');const ll=document.getElementById('liveLabel');const pw=document.getElementById('previewWrap');
+  if(isOnAir){sb.classList.add('hidden');ob.classList.remove('hidden');badge.classList.remove('hidden');ll.classList.remove('hidden');pw.classList.add('on-air-border');}
+  else{sb.classList.remove('hidden');ob.classList.add('hidden');badge.classList.add('hidden');ll.classList.add('hidden');pw.classList.remove('on-air-border');}
+}
+async function toggleMic(){if(!room)return;micEnabled=!micEnabled;await room.localParticipant.setMicrophoneEnabled(micEnabled);document.getElementById('btnMic').textContent=micEnabled?'🎙️ Mutear':'🔇 Activar mic';document.getElementById('micStatus').textContent=micEnabled?'🎙️ MIC ON':'🔇 MIC OFF';}
+async function toggleCam(){if(!room)return;camEnabled=!camEnabled;await room.localParticipant.setCameraEnabled(camEnabled);document.getElementById('btnCam').textContent=camEnabled?'📷 Apagar cámara':'📷 Encender cámara';document.getElementById('localVideo').style.display=camEnabled?'block':'none';}
+function setConnected(v){document.getElementById('connDot').className=v?'status-dot online':'status-dot';document.getElementById('connLabel').textContent=v?'En sala':'Desconectado';}
+function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);const v=document.getElementById('localVideo');if(v&&v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());window.location.href='index.html';}
+window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
+</script>
+</body>
+</html>
