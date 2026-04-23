@@ -90,7 +90,7 @@ function setupRoomEvents(){
 function updateStreamers(){
   const grid=document.getElementById('streamersGrid');
   const noS=document.getElementById('noStreamers');
-  const participants=Array.from(room.remoteParticipants.values()).filter(p=>!p.identity.startsWith('operador')&&!p.identity.startsWith('pantalla'));
+  const participants=Array.from(room.remoteParticipants.values()).filter(p=>p.identity.startsWith('streamer_'));
   if(!participants.length){grid.classList.add('hidden');noS.classList.remove('hidden');return;}
   noS.classList.add('hidden');grid.classList.remove('hidden');grid.innerHTML='';
   participants.forEach(p=>grid.appendChild(createCard(p)));
@@ -105,7 +105,7 @@ function createCard(p){
   if(!hasV){const nv=document.createElement('div');nv.className='no-video';nv.innerHTML='🎤';thumb.appendChild(nv);}
   card.appendChild(thumb);
   const info=document.createElement('div');info.className='info';
-  const name=document.createElement('div');name.className='name';name.textContent=p.identity;info.appendChild(name);
+  const name=document.createElement('div');name.className='name';name.textContent=prettyName(p.identity);info.appendChild(name);
   if(sel){const lt=document.createElement('span');lt.style.cssText='font-size:10px;font-weight:800;color:var(--accent-red);letter-spacing:2px;';lt.textContent='● LIVE';info.appendChild(lt);}
   else{const btn=document.createElement('button');btn.className='btn btn-primary select-btn';btn.textContent='AL AIRE';btn.onclick=()=>selectStreamer(p.identity);info.appendChild(btn);}
   card.appendChild(info);return card;
@@ -114,7 +114,7 @@ async function selectStreamer(id){
   try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/select',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({participantId:id})});
   if(!r.ok)throw new Error();selectedParticipant=id;updateStreamers();updateSelectedInfo();document.getElementById('onAirBadge').classList.remove('hidden');}catch(e){}
 }
-function updateSelectedInfo(){const el=document.getElementById('selectedInfo');if(selectedParticipant){document.getElementById('selectedName').textContent=selectedParticipant;el.classList.remove('hidden');}else el.classList.add('hidden');}
+function updateSelectedInfo(){const el=document.getElementById('selectedInfo');if(selectedParticipant){document.getElementById('selectedName').textContent=prettyName(selectedParticipant);el.classList.remove('hidden');}else el.classList.add('hidden');}
 function startPolling(){
   pollInterval=setInterval(async()=>{
     try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();
@@ -126,7 +126,7 @@ function startPolling(){
 }
 function setConnected(v){const dot=document.getElementById('connDot');const label=document.getElementById('connLabel');const bars=document.getElementById('signalBars');if(v){dot.className='status-dot online';label.textContent='Conectado';bars.style.opacity='1';}else{dot.className='status-dot';label.textContent='Desconectado';bars.style.opacity='0.3';}}
 function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);window.location.href='index.html';}
-function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid){const url=buildUserUrl(rid);const a=document.getElementById('qrLink');a.href=url;a.textContent=url;const el=document.getElementById('qrCanvas');if(!el)return;el.innerHTML='';if(window.QRCode){try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.M});}catch(e){console.warn(e);}}} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
+function prettyName(id){if(!id)return '';const m=String(id).match(/^streamer_(.+)_\d+$/);return m?m[1]:id;} function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid,tries){tries=tries||0;const url=buildUserUrl(rid);const a=document.getElementById('qrLink');if(a){a.href=url;a.textContent=url;}const el=document.getElementById('qrCanvas');if(!el)return;el.innerHTML='';if(window.QRCode){try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.M});}catch(e){console.warn(e);}}else if(tries<20){setTimeout(function(){renderQR(rid,tries+1);},250);}} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
 </script>
 </body>
 </html>
