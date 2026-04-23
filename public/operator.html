@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Operador — Stream Director</title>
   <link rel="stylesheet" href="style.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script><script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -46,7 +46,7 @@
         <button class="btn btn-ghost" onclick="goHome()">← Salir</button>
       </div>
     </div>
-    <div id="qrBlock" class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:16px;"><canvas id="qrCanvas" width="160" height="160" style="background:#fff;border-radius:10px;padding:6px;"></canvas><div><div class="text-xs text-muted" style="letter-spacing:2px;">ACCESO DE STREAMERS</div><div style="font-weight:700;margin:4px 0 6px;">Escanea el QR para unirte como streamer</div><a id="qrLink" href="#" target="_blank" style="color:#2dd4bf;font-size:13px;word-break:break-all;"></a><div style="margin-top:8px;"><button class="btn btn-ghost" onclick="copyUserLink()">📋 Copiar enlace</button></div></div></div><div id="noStreamers" class="card text-center" style="padding:60px;">
+    <div id="qrBlock" class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:16px;"><div id="qrCanvas" style="background:#fff;border-radius:10px;padding:6px;width:172px;height:172px;display:flex;align-items:center;justify-content:center;"></div><div><div class="text-xs text-muted" style="letter-spacing:2px;">ACCESO DE STREAMERS</div><div style="font-weight:700;margin:4px 0 6px;">Escanea el QR para unirte como streamer</div><a id="qrLink" href="#" target="_blank" style="color:#2dd4bf;font-size:13px;word-break:break-all;"></a><div style="margin-top:8px;"><button class="btn btn-ghost" onclick="copyUserLink()">📋 Copiar enlace</button></div></div></div><div id="noStreamers" class="card text-center" style="padding:60px;">
       <div style="font-size:48px;margin-bottom:16px;">📭</div>
       <p style="font-size:16px;font-weight:600;margin-bottom:8px;">Sin streamers conectados</p>
       <p class="text-muted text-sm">Los streamers aparecerán aquí cuando se conecten</p>
@@ -126,7 +126,7 @@ function startPolling(){
 }
 function setConnected(v){const dot=document.getElementById('connDot');const label=document.getElementById('connLabel');const bars=document.getElementById('signalBars');if(v){dot.className='status-dot online';label.textContent='Conectado';bars.style.opacity='1';}else{dot.className='status-dot';label.textContent='Desconectado';bars.style.opacity='0.3';}}
 function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);window.location.href='index.html';}
-function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid){const url=buildUserUrl(rid);const a=document.getElementById('qrLink');a.href=url;a.textContent=url;if(window.QRCode)QRCode.toCanvas(document.getElementById('qrCanvas'),url,{width:160,margin:1},function(e){if(e)console.warn(e);});} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
+function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid){const url=buildUserUrl(rid);const a=document.getElementById('qrLink');a.href=url;a.textContent=url;const el=document.getElementById('qrCanvas');if(!el)return;el.innerHTML='';if(window.QRCode){try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.M});}catch(e){console.warn(e);}}} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
 </script>
 </body>
 </html>
