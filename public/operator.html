@@ -63,7 +63,7 @@ const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
 const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
 let room=null,currentRoomId='',selectedParticipant=null,pollInterval=null;
 window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
-async function joinRoom(){
+async function joinRoom(){ try { const __nm = document.getElementById('roomId').value.trim(); if (__nm) { const __rs = await fetch('https://stream-director-backend-v2-production.up.railway.app/api/rooms',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:__nm})}); if (__rs.ok) { const __rd = await __rs.json(); document.getElementById('roomId').value = __rd.roomId; } } } catch(__e){ console.warn('auto-create room failed', __e); }
   const roomId=document.getElementById('roomId').value.trim().toUpperCase();
   const identity=document.getElementById('identity').value.trim()||'operador';
   const a=document.getElementById('joinAlert');a.className='hidden';
