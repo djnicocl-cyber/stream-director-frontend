@@ -86,7 +86,7 @@ function setupRoomEvents(){
   room.on(LivekitClient.RoomEvent.TrackUnsubscribed,(track,pub,participant)=>{if(participant.identity===currentSelected)showWaiting();});
   room.on(LivekitClient.RoomEvent.ParticipantDisconnected,p=>{if(p.identity===currentSelected){showWaiting();currentSelected=null;}});
 }
-function startPolling(){
+function prettyName(id){if(!id)return '';const m=String(id).match(/^streamer_(.+)_\d+$/);return m?m[1]:id;} function startPolling(){
   pollInterval=setInterval(async()=>{
     try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();const ns=d.selected;
     if(ns!==currentSelected){currentSelected=ns;
@@ -105,7 +105,7 @@ function attachVideo(track,identity){
   };
   document.getElementById('waitingScreen').classList.add('hidden');
   document.getElementById('screenView').classList.remove('hidden');
-  document.getElementById('liveNameText').textContent=identity;
+  document.getElementById('liveNameText').textContent=prettyName(identity);
   startTimer();
 }
 function showWaiting(){document.getElementById('screenView').classList.add('hidden');document.getElementById('waitingScreen').classList.remove('hidden');stopTimer();const v=document.getElementById('screenVideo');v.srcObject=null;}
