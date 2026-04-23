@@ -75,7 +75,7 @@
 const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
 const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
 let room=null,currentRoomId='',currentIdentity='',pollInterval=null,micEnabled=true,camEnabled=true,isOnAir=false;
-window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
+window.addEventListener('DOMContentLoaded',()=>{const p=new URLSearchParams(location.search);const qr=p.get('room');const qn=p.get('name');if(qr){document.getElementById('roomId').value=qr;}else{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;}if(qn)document.getElementById('identity').value=qn;});
 async function joinRoom(){
   const roomId=document.getElementById('roomId').value.trim();
   const identity=document.getElementById('identity').value.trim();
