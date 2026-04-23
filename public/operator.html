@@ -76,7 +76,7 @@ async function joinRoom(){
     await room.connect(LIVEKIT_URL,d.token);setConnected(true);
     document.getElementById('joinPanel').classList.add('hidden');
     document.getElementById('controlPanel').classList.remove('hidden');
-    document.getElementById('roomLabel').textContent=roomId;
+    document.getElementById('roomLabel').textContent=roomId; renderQR(roomId);
     startPolling();
   }catch(e){a.className='alert alert-error';a.textContent='Error: '+e.message;}
 }
