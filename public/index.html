@@ -62,9 +62,9 @@
 <script>
 const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
 window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s){document.getElementById('roomIdInput').value=s;showRoomInfo(s);}});
-async function createRoom(){const id=document.getElementById('roomIdInput').value.trim();const a=document.getElementById('roomAlert');a.className='hidden';try{const r=await fetch(BACKEND+'/api/rooms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roomId:id||undefined})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');document.getElementById('roomIdInput').value=d.roomId;localStorage.setItem('sd_room_id',d.roomId);showRoomInfo(d.roomId);}catch(e){a.className='alert alert-error';a.textContent='❌ '+e.message;}}
+async function createRoom(){const id=document.getElementById('roomIdInput').value.trim().toUpperCase();const a=document.getElementById('roomAlert');a.className='hidden';try{const r=await fetch(BACKEND+'/api/rooms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roomId:id||undefined})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');document.getElementById('roomIdInput').value=d.roomId;localStorage.setItem('sd_room_id',d.roomId);showRoomInfo(d.roomId);}catch(e){a.className='alert alert-error';a.textContent='❌ '+e.message;}}
 function showRoomInfo(id){document.getElementById('roomIdDisplay').textContent=id;document.getElementById('roomInfo').className='';}
-function saveRoom(){const id=document.getElementById('roomIdInput').value.trim();if(!id){alert('Primero crea o ingresa un ID de sala');return false;}localStorage.setItem('sd_room_id',id);return true;}
+function saveRoom(){const id=document.getElementById('roomIdInput').value.trim().toUpperCase();if(!id){alert('Primero crea o ingresa un ID de sala');return false;}localStorage.setItem('sd_room_id',id);return true;}
 </script>
 </body>
 </html>
