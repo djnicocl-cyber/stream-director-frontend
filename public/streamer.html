@@ -114,7 +114,7 @@ function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollIn
 window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
 function showGoodbye(){if(room)try{room.disconnect();}catch(e){}const gs=document.getElementById('goodbyeScreen');if(gs){gs.style.display='flex';}}
 </script>
-<div id="goodbyeScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+<div id="goodbyeScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:url('goodbye-bg.jpg') center center/cover no-repeat;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
   <div style="font-size:64px;margin-bottom:24px;">📡</div>
   <h1 style="font-size:48px;font-weight:900;color:#fff;letter-spacing:4px;margin:0 0 16px 0;">GRACIAS POR CONECTARTE</h1>
   <p style="font-size:18px;color:#aaa;margin:0 0 40px 0;">La transmisión ha finalizado</p>
