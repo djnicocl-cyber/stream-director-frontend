@@ -108,9 +108,10 @@ function createCard(p){
   const name=document.createElement('div');name.className='name';name.textContent=prettyName(p.identity);info.appendChild(name);
   if(sel){const lt=document.createElement('span');lt.style.cssText='font-size:10px;font-weight:800;color:var(--accent-red);letter-spacing:2px;';lt.textContent='● LIVE';info.appendChild(lt);}
   else{const btn=document.createElement('button');btn.className='btn btn-primary select-btn';btn.textContent='AL AIRE';btn.onclick=()=>selectStreamer(p.identity);info.appendChild(btn);}
-  card.appendChild(info);return card;
+  card.appendChild(info);if(sel){attachOperatorAudio(p);}return card;
 }
-async function selectStreamer(id){
+async function attachOperatorAudio(p){p.audioTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){let a=document.getElementById('operatorAudio');if(!a){a=document.createElement('audio');a.id='operatorAudio';a.autoplay=true;document.body.appendChild(a);}pub.track.attach(a);}});}
+function selectStreamer(id){
   try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/select',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({participantIdentity:id})});
   if(!r.ok)throw new Error();selectedParticipant=id;updateStreamers();updateSelectedInfo();document.getElementById('onAirBadge').classList.remove('hidden');}catch(e){}
 }
