@@ -100,7 +100,7 @@ async function joinRoom(){
     startPolling();
   }catch(e){a.className='alert alert-error';a.textContent='Error: '+(e.message||'No se pudo conectar');}
 }
-function startPolling(){pollInterval=setInterval(async()=>{try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();const nowOn=(d.selected||"").toLowerCase()===(currentIdentity||"").toLowerCase();if(nowOn!==isOnAir){isOnAir=nowOn;updateAir();}}catch(e){}},1500);}
+function startPolling(){pollInterval=setInterval(async()=>{try{const r=await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/selected');const d=await r.json();const nowOn=d.selected && d.selected.toLowerCase().includes(currentIdentity.toLowerCase());if(nowOn!==isOnAir){isOnAir=nowOn;updateAir();}}catch(e){}},1500);}
 function updateAir(){
   const sb=document.getElementById('standbyBox');const ob=document.getElementById('onAirBox');
   const badge=document.getElementById('onAirBadge');const ll=document.getElementById('liveLabel');const pw=document.getElementById('previewWrap');
