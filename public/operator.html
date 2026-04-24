@@ -43,7 +43,7 @@
             <span class="text-sm">En aire: <strong id="selectedName" style="color:var(--accent-red)"></strong></span>
           </div>
         </div>
-        <button class="btn btn-ghost" onclick="goHome()">← Salir</button>
+        <button class="btn btn-ghost" onclick="goHome()">← Salir</button><button onclick="closeSession()" style="margin-left:8px;background:#c0392b;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">⏹ Cerrar Sesión</button>
       </div>
     </div>
     <div id="qrBlock" class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:16px;"><div id="qrCanvas" style="background:#fff;border-radius:10px;padding:6px;width:172px;height:172px;display:flex;align-items:center;justify-content:center;"></div><div><div class="text-xs text-muted" style="letter-spacing:2px;">ACCESO DE STREAMERS</div><div style="font-weight:700;margin:4px 0 6px;">Escanea el QR para unirte como streamer</div><a id="qrLink" href="#" target="_blank" style="color:#2dd4bf;font-size:13px;word-break:break-all;"></a><div style="margin-top:8px;"><button class="btn btn-ghost" onclick="copyUserLink()">📋 Copiar enlace</button></div></div></div><div id="noStreamers" class="card text-center" style="padding:60px;">
@@ -126,6 +126,7 @@ function startPolling(){
     }catch(e){}},2000);
 }
 function setConnected(v){const dot=document.getElementById('connDot');const label=document.getElementById('connLabel');const bars=document.getElementById('signalBars');if(v){dot.className='status-dot online';label.textContent='Conectado';bars.style.opacity='1';}else{dot.className='status-dot';label.textContent='Desconectado';bars.style.opacity='0.3';}}
+async function closeSession(){if(!confirm('¿Cerrar sesión y notificar a los streamers?'))return;try{await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/close',{method:'POST'});}catch(e){}if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);location.href='index.html';}
 function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);window.location.href='index.html';}
 function prettyName(id){if(!id)return '';const m=String(id).match(/^streamer_(.+)_\d+$/);return m?m[1]:id;} function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid,tries){tries=tries||0;const url=buildUserUrl(rid);const a=document.getElementById('qrLink');if(a){a.href=url;a.textContent=url;}const el=document.getElementById('qrCanvas');if(!el)return;el.innerHTML='';if(window.QRCode){try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.M});}catch(e){console.warn(e);}}else if(tries<20){setTimeout(function(){renderQR(rid,tries+1);},250);}} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
 </script>
