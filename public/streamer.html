@@ -88,10 +88,10 @@ async function joinRoom(){
     currentRoomId=roomId;currentIdentity=identity;localStorage.setItem('sd_room_id',roomId);
     const stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
     document.getElementById('localVideo').srcObject=stream;
-    room=new LivekitClient.Room();
+    room=new LivekitClient.Room({adaptiveStream:true,dynacast:true});
     room.on(LivekitClient.RoomEvent.Disconnected,()=>setConnected(false));
     await room.connect(LIVEKIT_URL,d.token);
-    await room.localParticipant.enableCameraAndMicrophone();
+    await room.localParticipant.enableCameraAndMicrophone();await room.localParticipant.setCameraEnabled(true,{resolution:{width:640,height:360,frameRate:24},maxBitrate:600000});
     setConnected(true);
     document.getElementById('joinPanel').classList.add('hidden');
     const lp=document.getElementById('livePanel');lp.style.display='flex';
