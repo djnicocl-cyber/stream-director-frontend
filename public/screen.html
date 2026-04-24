@@ -110,7 +110,7 @@ function attachVideo(track,identity){
 }
 function attachAudio(track){let a=document.getElementById('screenAudio');if(!a){a=document.createElement('audio');a.id='screenAudio';a.autoplay=true;document.body.appendChild(a);}track.attach(a);}
 function showWaiting(){document.getElementById('screenView').classList.add('hidden');document.getElementById('waitingScreen').classList.remove('hidden');stopTimer();const v=document.getElementById('screenVideo');v.srcObject=null;}
-function startTimer(){stopTimer();liveStartTime=Date.now();timerInterval=setInterval(()=>{const e=Math.floor((Date.now()-liveStartTime)/1000);const m=String(Math.floor(e/60)).padStart(2,'0');const s=String(e%60).padStart(2,'0');document.getElementById('liveTimer').textContent=m+':'+s;},1000);}
+function startTimer(){stopTimer();liveStartTime=Date.now();timerInterval=setInterval(()=>{const e=Math.floor((Date.now()-liveStartTime)/1000);const m=String(Math.floor(e/60)).padStart(2,'0');const s=String(e%60).padStart(2,'0');document.getElementById('liveTimer').textContent=m+':'+s;},5000);}
 function stopTimer(){if(timerInterval)clearInterval(timerInterval);document.getElementById('liveTimer').textContent='00:00';}
 window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);if(timerInterval)clearInterval(timerInterval);});
 </script>
