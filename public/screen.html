@@ -82,7 +82,7 @@ async function startScreen(){
   }catch(e){a.className='alert alert-error';a.textContent='Error: '+e.message;}
 }
 function setupRoomEvents(){
-  room.on(LivekitClient.RoomEvent.TrackSubscribed,(track,pub,participant)=>{if(track.kind==='video'&&participant.identity===currentSelected)attachVideo(track,participant.identity);}if(track.kind==='audio'&&participant.identity===currentSelected){attachAudio(track);}});
+  room.on(LivekitClient.RoomEvent.TrackSubscribed,(track,pub,participant)=>{if(track.kind==='video'&&participant.identity===currentSelected)attachVideo(track,participant.identity);if(track.kind==='audio'&&participant.identity===currentSelected){attachAudio(track);}});
   room.on(LivekitClient.RoomEvent.TrackUnsubscribed,(track,pub,participant)=>{if(participant.identity===currentSelected)showWaiting();});
   room.on(LivekitClient.RoomEvent.ParticipantDisconnected,p=>{if(p.identity===currentSelected){showWaiting();currentSelected=null;}});
 }
