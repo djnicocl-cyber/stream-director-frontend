@@ -51,7 +51,7 @@
   </div>
 </div>
 <div id="screenView" class="hidden">
-  <video id="screenVideo" autoplay playsinline></video>
+  <video id="screenVideo" autoplay playsinline></video><audio id="screenAudio" autoplay></audio>
   <div id="screenOverlay">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="live-pill">● EN VIVO</div>
@@ -82,7 +82,7 @@ async function startScreen(){
   }catch(e){a.className='alert alert-error';a.textContent='Error: '+e.message;}
 }
 function setupRoomEvents(){
-  room.on(LivekitClient.RoomEvent.TrackSubscribed,(track,pub,participant)=>{if(track.kind==='video'&&participant.identity===currentSelected)attachVideo(track,participant.identity);});
+  room.on(LivekitClient.RoomEvent.TrackSubscribed,(track,pub,participant)=>{if(track.kind==='video'&&participant.identity===currentSelected)attachVideo(track,participant.identity);}if(track.kind==='audio'&&participant.identity===currentSelected){attachAudio(track);}});
   room.on(LivekitClient.RoomEvent.TrackUnsubscribed,(track,pub,participant)=>{if(participant.identity===currentSelected)showWaiting();});
   room.on(LivekitClient.RoomEvent.ParticipantDisconnected,p=>{if(p.identity===currentSelected){showWaiting();currentSelected=null;}});
 }
@@ -92,7 +92,7 @@ function prettyName(id){if(!id)return '';const m=String(id).match(/^streamer_(.+
     if(ns!==currentSelected){currentSelected=ns;
     if(!currentSelected){showWaiting();return;}
     const p=room.remoteParticipants.get(currentSelected);
-    if(p){let fv=false;p.videoTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){attachVideo(pub.track,p.identity);fv=true;}});if(!fv)showWaiting();}else showWaiting();
+    if(p){let fv=false;p.videoTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){attachVideo(pub.track,p.identity);fv=true;}});p.audioTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){attachAudio(pub.track);}});if(!fv)showWaiting();}else showWaiting();
     document.getElementById('liveNameText').textContent=currentSelected||'';}
     }catch(e){}},1500);
 }
@@ -108,6 +108,7 @@ function attachVideo(track,identity){
   document.getElementById('liveNameText').textContent=prettyName(identity);
   startTimer();
 }
+function attachAudio(track){let a=document.getElementById('screenAudio');if(!a){a=document.createElement('audio');a.id='screenAudio';a.autoplay=true;document.body.appendChild(a);}track.attach(a);}
 function showWaiting(){document.getElementById('screenView').classList.add('hidden');document.getElementById('waitingScreen').classList.remove('hidden');stopTimer();const v=document.getElementById('screenVideo');v.srcObject=null;}
 function startTimer(){stopTimer();liveStartTime=Date.now();timerInterval=setInterval(()=>{const e=Math.floor((Date.now()-liveStartTime)/1000);const m=String(Math.floor(e/60)).padStart(2,'0');const s=String(e%60).padStart(2,'0');document.getElementById('liveTimer').textContent=m+':'+s;},1000);}
 function stopTimer(){if(timerInterval)clearInterval(timerInterval);document.getElementById('liveTimer').textContent='00:00';}
