@@ -65,8 +65,7 @@
   </div>
 </div>
 <script>
-const OPERATOR_PASSWORD='vivostream2025';
-function checkPassword(){const pwd=document.getElementById('accessPassword').value;if(pwd===OPERATOR_PASSWORD){document.getElementById('passwordPanel').classList.add('hidden');document.getElementById('joinPanel').classList.remove('hidden');}else{document.getElementById('passwordAlert').classList.remove('hidden');document.getElementById('accessPassword').value='';document.getElementById('accessPassword').focus();}}
+async function checkPassword(){const pwd=document.getElementById('accessPassword').value;if(!pwd)return;try{const r=await fetch(BACKEND+'/api/auth/operator',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});const d=await r.json();if(d.ok){document.getElementById('passwordPanel').classList.add('hidden');document.getElementById('joinPanel').classList.remove('hidden');}else{document.getElementById('passwordAlert').classList.remove('hidden');document.getElementById('accessPassword').value='';document.getElementById('accessPassword').focus();}}catch(e){document.getElementById('passwordAlert').classList.remove('hidden');}}
 const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
 const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
 let room=null,currentRoomId='',selectedParticipant=null,pollInterval=null;
