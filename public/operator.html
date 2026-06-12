@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Operador — Stream Director</title>
+  <title>Operador â Stream Director</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script><script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
 <header class="topbar">
   <div class="logo">
-    <div class="logo-icon">🎛️</div>
-    <h1>Stream <span>Director</span> — <span style="color:#2979ff">Operador</span></h1>
+    <div class="logo-icon">ðï¸</div>
+    <h1>Stream <span>Director</span> â <span style="color:#2979ff">Operador</span></h1>
   </div>
   <div class="flex items-center gap-16">
     <div id="onAirBadge" class="on-air-badge hidden"><span class="dot"></span> ON AIR</div>
@@ -24,23 +24,23 @@
 </header>
 <div class="container">
   <div id="passwordPanel" class="card" style="max-width:420px;margin:40px auto;">
-    <div class="card-header">🔒 Acceso Operador</div>
-    <div class="form-group"><label>Contraseña</label><input type="password" id="accessPassword" placeholder="Ingresa la contraseña" onkeydown="if(event.key==='Enter')checkPassword()"/></div>
-    <div id="passwordAlert" class="hidden" style="color:#e74c3c;font-size:13px;margin-bottom:8px;text-align:center;">❌ Contraseña incorrecta</div>
-    <button class="btn btn-primary w-full btn-lg" onclick="checkPassword()">🔑 Ingresar</button>
+    <div class="card-header">ð Acceso Operador</div>
+    <div class="form-group"><label>ContraseÃ±a</label><input type="password" id="accessPassword" placeholder="Ingresa la contraseÃ±a" onkeydown="if(event.key==='Enter')checkPassword()"/></div>
+    <div id="passwordAlert" class="hidden" style="color:#e74c3c;font-size:13px;margin-bottom:8px;text-align:center;">â ContraseÃ±a incorrecta</div>
+    <button class="btn btn-primary w-full btn-lg" onclick="checkPassword()">ð Ingresar</button>
   </div>
   <div id="joinPanel" class="card hidden" style="max-width:480px;margin:40px auto;">
-    <div class="card-header">📡 Conectar como Operador</div>
+    <div class="card-header">ð¡ Conectar como Operador</div>
     <div class="form-group"><label>ID de la Sala</label><input type="text" id="roomId" placeholder="Ej: sala-principal"/></div>
     <div class="form-group"><label>Tu nombre</label><input type="text" id="identity" placeholder="Ej: operador-1" value="operador"/></div>
     <div id="joinAlert" class="hidden"></div>
-    <button class="btn btn-primary w-full btn-lg" onclick="joinRoom()">🔴 Conectar al Control</button>
+    <button class="btn btn-primary w-full btn-lg" onclick="joinRoom()">ð´ Conectar al Control</button>
   </div>
   <div id="controlPanel" class="hidden">
     <div class="flex items-center justify-between" style="margin-bottom:20px;">
       <div>
         <h2 style="font-size:20px;font-weight:700;letter-spacing:1px;">SALA: <span id="roomLabel" style="color:var(--accent-red)"></span></h2>
-        <p class="text-xs text-muted mt-8">Selecciona quién sale al aire</p>
+        <p class="text-xs text-muted mt-8">Selecciona quiÃ©n sale al aire</p>
       </div>
       <div class="flex gap-12 items-center">
         <div id="selectedInfo" class="hidden">
@@ -49,13 +49,13 @@
             <span class="text-sm">En aire: <strong id="selectedName" style="color:var(--accent-red)"></strong></span>
           </div>
         </div>
-        <button class="btn btn-ghost" onclick="goHome()">← Salir</button><button id="micBtn" onclick="toggleMic()" style="margin-left:8px;background:#27ae60;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;" title="Micrófono apagado">🎤 Micrófono</button><button onclick="closeSession()" style="margin-left:8px;background:#c0392b;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">⏹ Cerrar Sesión</button>
+        <button class="btn btn-ghost" onclick="goHome()">â Salir</button><button id="micBtn" onclick="toggleMic()" style="margin-left:8px;background:#27ae60;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;" title="MicrÃ³fono apagado">ð¤ MicrÃ³fono</button><button onclick="closeSession()" style="margin-left:8px;background:#c0392b;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:14px;">â¹ Cerrar SesiÃ³n</button>
       </div>
     </div>
-    <div id="qrBlock" class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:16px;"><div id="qrCanvas" style="background:#fff;border-radius:10px;padding:6px;width:172px;height:172px;display:flex;align-items:center;justify-content:center;"></div><div><div class="text-xs text-muted" style="letter-spacing:2px;">ACCESO DE STREAMERS</div><div style="font-weight:700;margin:4px 0 6px;">Escanea el QR para unirte como streamer</div><a id="qrLink" href="#" target="_blank" style="color:#2dd4bf;font-size:13px;word-break:break-all;"></a><div style="margin-top:8px;"><button class="btn btn-ghost" onclick="copyUserLink()">📋 Copiar enlace</button></div></div></div><div id="noStreamers" class="card text-center" style="padding:60px;">
-      <div style="font-size:48px;margin-bottom:16px;">📭</div>
+    <div id="qrBlock" class="card" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:20px;padding:16px;"><div id="qrCanvas" style="background:#fff;border-radius:10px;padding:6px;width:172px;height:172px;display:flex;align-items:center;justify-content:center;"></div><div><div class="text-xs text-muted" style="letter-spacing:2px;">ACCESO DE STREAMERS</div><div style="font-weight:700;margin:4px 0 6px;">Escanea el QR para unirte como streamer</div><a id="qrLink" href="#" target="_blank" style="color:#2dd4bf;font-size:13px;word-break:break-all;"></a><div style="margin-top:8px;"><button class="btn btn-ghost" onclick="copyUserLink()">ð Copiar enlace</button></div></div></div><div id="noStreamers" class="card text-center" style="padding:60px;">
+      <div style="font-size:48px;margin-bottom:16px;">ð­</div>
       <p style="font-size:16px;font-weight:600;margin-bottom:8px;">Sin streamers conectados</p>
-      <p class="text-muted text-sm">Los streamers aparecerán aquí cuando se conecten</p>
+      <p class="text-muted text-sm">Los streamers aparecerÃ¡n aquÃ­ cuando se conecten</p>
       <div class="flex items-center gap-8" style="justify-content:center;margin-top:24px;">
         <span class="status-dot waiting"></span>
         <span class="text-xs text-muted">Esperando participantes...</span>
@@ -66,7 +66,7 @@
 </div>
 <script>
 async function checkPassword(){const pwd=document.getElementById('accessPassword').value;if(!pwd)return;try{const r=await fetch(BACKEND+'/api/auth/operator',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});const d=await r.json();if(d.ok){document.getElementById('passwordPanel').classList.add('hidden');document.getElementById('joinPanel').classList.remove('hidden');}else{document.getElementById('passwordAlert').classList.remove('hidden');document.getElementById('accessPassword').value='';document.getElementById('accessPassword').focus();}}catch(e){document.getElementById('passwordAlert').classList.remove('hidden');}}
-const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
+const BACKEND='https://stream-director-backend-v2.onrender.com';
 const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
 let room=null,currentRoomId='',selectedParticipant=null,pollInterval=null;
 window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
@@ -105,15 +105,15 @@ function updateStreamers(){
 function createCard(p){
   const sel=selectedParticipant===p.identity;
   const card=document.createElement('div');card.className='streamer-card'+(sel?' selected':'');
-  if(sel){const b=document.createElement('div');b.className='selected-badge';b.textContent='● EN AIRE';card.appendChild(b);}
+  if(sel){const b=document.createElement('div');b.className='selected-badge';b.textContent='â EN AIRE';card.appendChild(b);}
   const thumb=document.createElement('div');thumb.className='thumb';
   let hasV=false;
   p.videoTrackPublications.forEach(pub=>{if(pub.track&&pub.isSubscribed){const v=pub.track.attach();v.muted=true;thumb.appendChild(v);hasV=true;}});
-  if(!hasV){const nv=document.createElement('div');nv.className='no-video';nv.innerHTML='🎤';thumb.appendChild(nv);}
+  if(!hasV){const nv=document.createElement('div');nv.className='no-video';nv.innerHTML='ð¤';thumb.appendChild(nv);}
   card.appendChild(thumb);
   const info=document.createElement('div');info.className='info';
   const name=document.createElement('div');name.className='name';name.textContent=prettyName(p.identity);info.appendChild(name);
-  if(sel){const lt=document.createElement('span');lt.style.cssText='font-size:10px;font-weight:800;color:var(--accent-red);letter-spacing:2px;';lt.textContent='● LIVE';info.appendChild(lt);}
+  if(sel){const lt=document.createElement('span');lt.style.cssText='font-size:10px;font-weight:800;color:var(--accent-red);letter-spacing:2px;';lt.textContent='â LIVE';info.appendChild(lt);}
   else{const btn=document.createElement('button');btn.className='btn btn-primary select-btn';btn.textContent='AL AIRE';btn.onclick=()=>selectStreamer(p.identity);info.appendChild(btn);}
   card.appendChild(info);if(sel){attachOperatorAudio(p);}return card;
 }
@@ -133,10 +133,10 @@ function startPolling(){
     }catch(e){}},2000);
 }
 function setConnected(v){const dot=document.getElementById('connDot');const label=document.getElementById('connLabel');const bars=document.getElementById('signalBars');if(v){dot.className='status-dot online';label.textContent='Conectado';bars.style.opacity='1';}else{dot.className='status-dot';label.textContent='Desconectado';bars.style.opacity='0.3';}}
-async function closeSession(){if(!confirm('¿Cerrar sesión y notificar a los streamers?'))return;try{await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/close',{method:'POST'});}catch(e){}if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);location.href='index.html';}
+async function closeSession(){if(!confirm('Â¿Cerrar sesiÃ³n y notificar a los streamers?'))return;try{await fetch(BACKEND+'/api/rooms/'+currentRoomId+'/close',{method:'POST'});}catch(e){}if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);location.href='index.html';}
 function goHome(){if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);window.location.href='index.html';}
 function prettyName(id){if(!id)return '';const m=String(id).match(/^streamer_(.+)_\d+$/);return m?m[1]:id;} function buildUserUrl(rid){const base=location.origin+location.pathname.replace(/operator\.html$/,'');return base+'streamer.html?room='+encodeURIComponent(rid);} function renderQR(rid,tries){tries=tries||0;const url=buildUserUrl(rid);const a=document.getElementById('qrLink');if(a){a.href=url;a.textContent=url;}const el=document.getElementById('qrCanvas');if(!el)return;el.innerHTML='';if(window.QRCode){try{new QRCode(el,{text:url,width:160,height:160,correctLevel:QRCode.CorrectLevel.M});}catch(e){console.warn(e);}}else if(tries<20){setTimeout(function(){renderQR(rid,tries+1);},250);}} async function copyUserLink(){try{await navigator.clipboard.writeText(document.getElementById('qrLink').href);}catch(e){}} window.addEventListener('beforeunload',()=>{if(room)room.disconnect();if(pollInterval)clearInterval(pollInterval);});
-async function toggleMic(){if(!room)return;const enabled=room.localParticipant.isMicrophoneEnabled;const btn=document.getElementById('micBtn');if(enabled){await room.localParticipant.setMicrophoneEnabled(false);if(btn){btn.style.background='#27ae60';btn.innerHTML='🎤 Micrófono';btn.title='Micrófono apagado';}}else{await room.localParticipant.setMicrophoneEnabled(true);if(btn){btn.style.background='#e74c3c';btn.innerHTML='🔴 Micrófono ON';btn.title='Micrófono encendido';}}}
+async function toggleMic(){if(!room)return;const enabled=room.localParticipant.isMicrophoneEnabled;const btn=document.getElementById('micBtn');if(enabled){await room.localParticipant.setMicrophoneEnabled(false);if(btn){btn.style.background='#27ae60';btn.innerHTML='ð¤ MicrÃ³fono';btn.title='MicrÃ³fono apagado';}}else{await room.localParticipant.setMicrophoneEnabled(true);if(btn){btn.style.background='#e74c3c';btn.innerHTML='ð´ MicrÃ³fono ON';btn.title='MicrÃ³fono encendido';}}}
 </script>
 </body>
 </html>
