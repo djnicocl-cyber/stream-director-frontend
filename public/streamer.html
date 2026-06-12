@@ -126,20 +126,23 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0a;}
                                                                     <body>
                                                                     
                                                                     <header class="topbar">
-                                                                        <div class="logo">
-                                                                                  <img src="logo-topbar.png" alt="Party Cam" style="height:40px;width:auto;object-fit:contain;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.8));"/>
-                                                                                        </div>
-                                                                                                          <div class="topbar-right">
-                                                                                      <div id="onAirBadge" class="on-air-badge" style="display:none;"><span class="dot"></span> ON AIR</div>
-                                                                                          <span class="status-dot" id="connDot"></span>
-                                                                                              <span style="font-size:11px;color:#666;" id="connLabel">Desconectado</span>
-                                                                                                </div>
-                                                                                                </header>
-                                                                                                
-                                                                                                <div id="joinPanel">
-                                                                                                  <div class="join-card">
-                                                                                                      <h2>&#127908; Unirse como Streamer</h2>
-                                                                                                          <div id="joinAlert" style="display:none;" class="alert-error"></div>
+  <div class="logo">
+            <span style="font-size:13px;font-weight:700;color:#888;letter-spacing:1px;">STREAMER</span>
+                  </div>
+                        <div class="topbar-right">
+                            <div id="onAirBadge" class="on-air-badge" style="display:none;"><span class="dot"></span> ON AIR</div>
+                                <span class="status-dot" id="connDot"></span>
+                                    <span style="font-size:11px;color:#666;" id="connLabel">Desconectado</span>
+                                      </div>
+                                      </header>
+                                      
+                                      <div id="joinPanel">
+                                        <div class="join-card">
+                                            <!-- LOGO PARTY CAM grande encima del formulario -->
+                                                <div style="display:flex;justify-content:center;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #1e1e1e;">
+                                                      <img src="logo-topbar.png" alt="Party Cam" style="max-width:100%;width:320px;height:auto;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.8));"/>
+                                                          </div>
+                                                              <h2>&#127908; Unirse como Streamer</h2>                                                                                                                                                                        <div id="joinAlert" style="display:none;" class="alert-error"></div>
                                                                                                               <div class="form-group">
                                                                                                                     <label>ID de la Sala</label>
                                                                                                                           <input type="text" id="roomId" placeholder="Ej: sala-principal" readonly style="opacity:0.6;cursor:not-allowed;"/>
