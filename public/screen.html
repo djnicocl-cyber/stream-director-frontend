@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pantalla — Stream Director</title>
+  <title>Pantalla â Stream Director</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
   <style>
@@ -29,20 +29,20 @@
 <div id="setupPanel">
   <div class="setup-card">
     <div style="text-align:center;margin-bottom:32px;">
-      <div style="font-size:48px;margin-bottom:12px;">📺</div>
+      <div style="font-size:48px;margin-bottom:12px;">ðº</div>
       <h2 style="font-size:22px;font-weight:800;letter-spacing:2px;text-transform:uppercase;">Vista Pantalla</h2>
-      <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">Proyección del streamer seleccionado</p>
+      <p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">ProyecciÃ³n del streamer seleccionado</p>
     </div>
     <div class="form-group"><label>ID de la Sala</label><input type="text" id="roomId" placeholder="Ej: sala-principal"/></div>
     <div id="setupAlert" class="hidden"></div>
-    <button class="btn btn-success w-full btn-lg" onclick="startScreen()">📺 Iniciar pantalla</button>
+    <button class="btn btn-success w-full btn-lg" onclick="startScreen()">ðº Iniciar pantalla</button>
     <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:16px;">Se recomienda usar en pantalla completa (F11)</p>
   </div>
 </div>
 <div id="waitingScreen" class="hidden">
   <div class="broadcast-title">STREAM DIRECTOR</div>
   <div style="text-align:center;">
-    <p style="font-size:16px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px;">EN ESPERA DE SEÑAL</p>
+    <p style="font-size:16px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px;">EN ESPERA DE SEÃAL</p>
     <div class="waiting-dots"><span></span><span></span><span></span></div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;opacity:.5;">
@@ -54,14 +54,14 @@
   <video id="screenVideo" autoplay playsinline></video><audio id="screenAudio" autoplay></audio>
   <div id="screenOverlay">
     <div style="display:flex;align-items:center;gap:14px;">
-      <div class="live-pill">● EN VIVO</div>
+      <div class="live-pill">â EN VIVO</div>
       <div class="live-name" id="liveNameText"></div>
     </div>
     <div class="live-time" id="liveTimer">00:00</div>
   </div>
 </div>
 <script>
-const BACKEND='https://stream-director-backend-v2-production.up.railway.app';
+const BACKEND='https://stream-director-backend-v2.onrender.com';
 const LIVEKIT_URL='wss://stream-director-13gpu9p5.livekit.cloud';
 let room=null,currentRoomId='',currentSelected=null,pollInterval=null,liveStartTime=null,timerInterval=null;
 window.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('sd_room_id');if(s)document.getElementById('roomId').value=s;});
