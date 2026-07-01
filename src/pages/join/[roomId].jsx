@@ -9,7 +9,15 @@ const ROOM_OPTIONS = {
   adaptiveStream: true,
   dynacast: true,
   videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
-  publishDefaults: { videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 }, dtx: false, red: false, simulcast: true },
+  // Audio completamente deshabilitado - solo video
+  audioCaptureDefaults: { deviceId: '' },
+  publishDefaults: {
+    videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
+    dtx: false,
+    red: false,
+    simulcast: true,
+    audioPreset: undefined,
+  },
 };
 
 export default function JoinPage() {
@@ -49,6 +57,7 @@ export default function JoinPage() {
     room.on(RoomEvent.Reconnecting, () => { setStatus('reconnecting'); setMsg('Reconectando a LiveKit...'); });
     room.on(RoomEvent.Reconnected, () => { setStatus('connected'); setMsg('Reconectado - esperando ser seleccionado'); });
     await room.connect(LK, token);
+    // Solo camara, NUNCA microfono
     await room.localParticipant.setCameraEnabled(true);
     await room.localParticipant.setMicrophoneEnabled(false);
     const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
