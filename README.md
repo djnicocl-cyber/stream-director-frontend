@@ -48,6 +48,10 @@ Aplicacion web para dirigir streams en vivo desde moviles. El operador seleccion
             >                 4. ## Flujo de uso
             >                
             >                 5. 1. El operador entra a `/operator/[roomId]` y crea/abre una sala
-            >                    2. 2. Los asistentes escanean el QR o entran a `/join/[roomId]` desde su movil
+            >                   
+            >                    2. ## Version
+            >                   
+            >                    3. v2-optimized - video-only, reconexion automatica, sin audio
+            >                    4. 2. Los asistentes escanean el QR o entran a `/join/[roomId]` desde su movil
             >                       3. 3. El operador selecciona que participante se proyecta
             >                          4. 4. La pantalla en `/screen/[roomId]` muestra el video en tiempo real
