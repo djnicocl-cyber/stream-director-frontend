@@ -5,7 +5,10 @@ import { Room, RoomEvent, Track } from 'livekit-client';
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://stream-director-backend-production.up.railway.app';
 const LK_URL = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'wss://stream-director-13gpu9p5.livekit.cloud';
 
-const ROOM_OPTIONS = { adaptiveStream: true, dynacast: true };
+const ROOM_OPTIONS = {
+  adaptiveStream: true,
+  dynacast: true,
+};
 
 export default function ScreenPage() {
   const router = useRouter();
@@ -45,7 +48,10 @@ export default function ScreenPage() {
         room.on(RoomEvent.DataReceived, (payload) => {
           try { const d = JSON.parse(new TextDecoder().decode(payload)); if (d.type === 'selected') { selectedRef.current = d.identity; attachBestTrack(room); } } catch (e) {}
         });
-        room.on(RoomEvent.TrackSubscribed, () => attachBestTrack(room));
+        room.on(RoomEvent.TrackSubscribed, (track, pub) => {
+          if (track.kind === 'audio') { pub.setSubscribed(false); return; }
+          attachBestTrack(room);
+        });
         room.on(RoomEvent.TrackUnsubscribed, () => attachBestTrack(room));
         room.on(RoomEvent.ParticipantDisconnected, () => attachBestTrack(room));
         room.on(RoomEvent.Reconnecting, () => setStatus('reconnecting'));
@@ -67,7 +73,7 @@ export default function ScreenPage() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
-      <video ref={videoRef} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       {status === 'connecting' && (
         <div style={{ position: 'absolute', color: 'white', fontSize: '18px', textAlign: 'center' }}>
           <p>Conectando...</p>
