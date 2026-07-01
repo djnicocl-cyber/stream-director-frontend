@@ -9,8 +9,6 @@ const ROOM_OPTIONS = {
   adaptiveStream: true,
   dynacast: true,
   videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
-  // Audio completamente deshabilitado - solo video
-  audioCaptureDefaults: { deviceId: '' },
   publishDefaults: {
     videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
     dtx: false,
@@ -56,14 +54,24 @@ export default function JoinPage() {
     });
     room.on(RoomEvent.Reconnecting, () => { setStatus('reconnecting'); setMsg('Reconectando a LiveKit...'); });
     room.on(RoomEvent.Reconnected, () => { setStatus('connected'); setMsg('Reconectado - esperando ser seleccionado'); });
-    // Fix: audio:false y video:false evitan que LiveKit auto-publique tracks al conectar
-    // Esto previene el error "failed to publish track" cuando el token solo permite camara
-    await room.connect(LK, token, { audio: false, video: false });
-    // Solo camara, NUNCA microfono
-    await room.localParticipant.setCameraEnabled(true);
+
+    await room.connect(LK, token);
+
+    // Asegurar microfono desactivado antes de activar camara
     await room.localParticipant.setMicrophoneEnabled(false);
-    const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
-    if (camPub && camPub.track && videoRef.current) camPub.track.attach(videoRef.current);
+
+    // Solo camara - con manejo de error explicito
+    try {
+      await room.localParticipant.setCameraEnabled(true);
+      const camPub = room.localParticipant.getTrackPublication(Track.Source.Camera);
+      if (camPub && camPub.track && videoRef.current) camPub.track.attach(videoRef.current);
+    } catch (e) {
+      console.error('Error al activar camara:', e);
+      setStatus('error');
+      setMsg('Error al activar camara: ' + (e?.message || e));
+      return;
+    }
+
     setStatus('connected');
     setMsg('Conectado - esperando ser seleccionado');
   }
@@ -95,7 +103,7 @@ export default function JoinPage() {
       {status !== 'idle' && (
         <div style={{ width: '100%', maxWidth: '600px', textAlign: 'center' }}>
           <div style={{ marginBottom: '16px', padding: '12px', borderRadius: '8px', background: selected ? '#064e3b' : '#1c1c1e', border: '1px solid ' + (selected ? '#10b981' : '#333'), fontSize: '18px', fontWeight: 'bold' }}>
-            {selected ? 'PROYECTANDO EN PANTALLA' : status === 'reconnecting' ? 'Reconectando...' : 'En espera'}
+            {selected ? 'PROYECTANDO EN PANTALLA' : status === 'reconnecting' ? 'Reconectando...' : status === 'error' ? 'Error de conexion' : 'En espera'}
           </div>
           <div style={{ position: 'relative', marginBottom: '16px' }}>
             <video ref={videoRef} autoPlay muted playsInline style={{ width: '100%', borderRadius: '12px', background: '#111', border: '2px solid ' + (selected ? '#10b981' : '#333') }} />
@@ -109,6 +117,9 @@ export default function JoinPage() {
           <p style={{ color: '#666', fontSize: '12px' }}>Sala: {roomId} | Nombre: {name}</p>
           {isConnected && (
             <button onClick={() => { if (reconnectRef.current) clearTimeout(reconnectRef.current); if (roomRef.current) roomRef.current.disconnect(); setStatus('idle'); setMsg(''); setSelected(false); }} style={{ marginTop: '16px', padding: '8px 24px', borderRadius: '8px', border: '1px solid #555', background: 'transparent', color: '#888', cursor: 'pointer' }}>Salir</button>
+          )}
+          {status === 'error' && (
+            <button onClick={() => { setStatus('idle'); setMsg(''); setSelected(false); }} style={{ marginTop: '16px', padding: '8px 24px', borderRadius: '8px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer' }}>Reintentar</button>
           )}
         </div>
       )}
