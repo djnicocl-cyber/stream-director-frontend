@@ -56,7 +56,9 @@ export default function JoinPage() {
     });
     room.on(RoomEvent.Reconnecting, () => { setStatus('reconnecting'); setMsg('Reconectando a LiveKit...'); });
     room.on(RoomEvent.Reconnected, () => { setStatus('connected'); setMsg('Reconectado - esperando ser seleccionado'); });
-    await room.connect(LK, token);
+    // Fix: audio:false y video:false evitan que LiveKit auto-publique tracks al conectar
+    // Esto previene el error "failed to publish track" cuando el token solo permite camara
+    await room.connect(LK, token, { audio: false, video: false });
     // Solo camara, NUNCA microfono
     await room.localParticipant.setCameraEnabled(true);
     await room.localParticipant.setMicrophoneEnabled(false);
