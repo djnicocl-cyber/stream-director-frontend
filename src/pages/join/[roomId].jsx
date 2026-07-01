@@ -9,6 +9,7 @@ const ROOM_OPTIONS = {
   adaptiveStream: true,
   dynacast: true,
   videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
+  // Sin audioCaptureDefaults para no interferir con permisos de camara
   publishDefaults: {
     videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
     dtx: false,
@@ -36,6 +37,24 @@ export default function JoinPage() {
     };
   }, []);
 
+  // Funcion para silenciar y despublicar cualquier track de audio
+  async function disableAllAudio(room) {
+    try {
+      // Desactivar microfono
+      await room.localParticipant.setMicrophoneEnabled(false);
+    } catch (e) {
+      console.warn('setMicrophoneEnabled(false) error:', e);
+    }
+    // Unpublish cualquier track de audio que se haya publicado automaticamente
+    for (const pub of room.localParticipant.audioTrackPublications.values()) {
+      try {
+        await room.localParticipant.unpublishTrack(pub.track);
+      } catch (e) {
+        console.warn('unpublishTrack audio error:', e);
+      }
+    }
+  }
+
   async function connectToRoom(roomId, participantName, token) {
     const room = new Room(ROOM_OPTIONS);
     roomRef.current = room;
@@ -53,12 +72,23 @@ export default function JoinPage() {
       }, 3000);
     });
     room.on(RoomEvent.Reconnecting, () => { setStatus('reconnecting'); setMsg('Reconectando a LiveKit...'); });
-    room.on(RoomEvent.Reconnected, () => { setStatus('connected'); setMsg('Reconectado - esperando ser seleccionado'); });
+    room.on(RoomEvent.Reconnected, () => {
+      setStatus('connected'); setMsg('Reconectado - esperando ser seleccionado');
+      // Asegurar que el audio sigue desactivado despues de reconectar
+      disableAllAudio(room);
+    });
+    // Escuchar si LiveKit activa audio automaticamente y desactivarlo
+    room.on(RoomEvent.LocalTrackPublished, (pub) => {
+      if (pub.kind === Track.Kind.Audio) {
+        console.warn('Audio track publicado automaticamente - despublicando...');
+        room.localParticipant.unpublishTrack(pub.track).catch(console.warn);
+      }
+    });
 
     await room.connect(LK, token);
 
-    // Asegurar microfono desactivado antes de activar camara
-    await room.localParticipant.setMicrophoneEnabled(false);
+    // Deshabilitar todo audio inmediatamente despues de conectar
+    await disableAllAudio(room);
 
     // Solo camara - con manejo de error explicito
     try {
